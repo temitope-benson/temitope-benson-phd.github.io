@@ -1,0 +1,188 @@
+<!DOCTYPE HTML>
+<!--
+	Editorial by HTML5 UP
+	html5up.net | @ajlkn
+	Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
+-->
+<html>
+	<head>
+		<title>Data Analysis</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+		<link rel="stylesheet" href="assets/css/main.css" />
+	</head>
+	<body class="is-preload">
+
+		<!-- Wrapper -->
+			<div id="wrapper">
+
+				<!-- Main -->
+					<div id="main">
+						<div class="inner">
+
+							<!-- Header -->
+								<header id="header">
+									<a class="logo"><strong>Data Analysis</strong> by Shayne M. Plourde</a>
+									<ul class="icons">
+										<li><a href="https://www.linkedin.com/in/shayne-plourde/" class="icon brands fa-linkedin"><span class="label">LinkedIn</span></a></li>
+										<li><a href="https://github.com/Shayne-Falco" class="icon brands fa-github"><span class="label">Github</span></a></li>
+										<li><a href="mailto:shayne.plourde@outlook.com" class="icon solid fa-envelope"><span class="label">Email</span></a></li>
+									</ul>
+								</header>
+
+							<!-- Content -->
+								<section>
+									<header class="main">
+										<h1>Parameter Set Analysis</h1>
+									</header>
+
+									<span class="image main"><img src="images/LinkedIn.jpg" alt="" /></span>
+
+									<ul class="actions">
+										<li><a href="Centrosome.html" class="button">Report on Background</a></li>
+										<li><a href="https://github.com/Shayne-Falco/3-compartment-maturation/blob/main/ParameterAnalysis.ipynb" class="button">GitHub Jupyter Notebook</a></li>
+									</ul>
+
+									<hr class="major" />
+									
+									<h2>What can the parameter sets required to fit the model to the data tell us?</h2>
+									<p>Initialize the notebook</p>
+										<pre><code>import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns</code></pre>
+									<h3>Did the random search used have an impact on the resulting parameter set?</h3>
+									<p>Load the data</p>
+									<p>We used three different random searches denoted by "mmh1", "mmh2", and "mmh3". These were stored separately.</p>
+										<pre><code>df = pd.read_table('GRACE/PAPER/Paper_Data/Hists/FitFRAP_mmh1/params.dat')
+df1 = pd.read_table('GRACE/PAPER/Paper_Data/Hists/FitFRAP_mmh2/params.dat')
+df2 = pd.read_table('GRACE/PAPER/Paper_Data/Hists/FitFRAP_mmh3/params.dat')
+params = pd.concat([df, df1, df2])
+params = params.fillna(0)</code></pre>
+									<p>Combine to a single DataFrame and store catagory as single column</p>
+										<pre><code>params["mmh1"] = params["mmh1"]+2*params["mmh2"]+3*params["mmh3"]
+params = params[params.columns[0:12]]
+params["mmh1"] = params["mmh1"].astype(int)</code></pre>	
+									<p>The cooperativity of the two centrosome compartments in the model is denoted by n1 and n2. We wanted to see if there was a significant difference in their values by computing their difference</p>
+									<pre><code>params['n1-n2'] = params ['n1'] - params['n2']</code></pre>
+
+									<h3>What is the correlation in the parameters?</h3>
+									<p>Plot the correlation matrices and color by random search type</p>
+									<pre><code>sns.pairplot(params, ## put the data frame here
+	y_vars = ["t_half","v_max","n1-n2","n1","n2"], 
+	x_vars = ["a1","a2","a4_log","a5_log","n1","n2"], 
+	height = 5,
+	hue="mmh1")
+						
+plt.show()</code></pre>
+									<span class="image main"><img src="images/firstAnalysis.png" alt="" /></span>
+									<h3>Making some changes to the data set</h3>
+									<p>We needed to remove some outliers in some terms and take the log of the terms</p>
+									<pre><code>params_trimmed = params[params['a4'] &lt 100]
+params_trimmed = params_trimmed[params_trimmed['a5'] &lt 100]
+params['a4_log'] = params['a4'].apply(np.log10)
+params['a5_log'] = params['a5'].apply(np.log10)</code></pre>
+									
+									<p>Plot the correlation matrices and color by random search type</p>
+									<pre><code>sns.pairplot(params_trimmed, ## put the data frame here
+	y_vars = ["t_half","v_max","n1-n2","n1","n2"], 
+	x_vars = ["a1","a2","a4_log","a5_log","n1","n2"], 
+	height = 5,
+	kind="reg")
+sns.set(font_scale=2)
+plt.show()</code></pre>
+									<span class="image main"><img src="images/secondAnalysis.png" alt="" /><image style="max-width: 100px;"></image></span>
+									<hr class="major" />
+									<h1>Conclusions</h1>
+									<h2>The type of random search had no influence on the parameter sets produces</h2>
+									<p>There is no correlation between the random search type and the parameter sets produced as seen by the complete overlap in every plot</p>
+									<h2>There is a correlation between the parameters</h2>
+									<p>There is a correlation between the parameters as seen by the plots. a1 and n1, a4 and n1, a5 and n2. Further there is a relationship between n1 and n2 where n1>n2 in a majority of parameter sets.</p>
+									<p>These parameters have biological meaning in the model and their correlations tell us about the mechanisms required for centrosome maturation. Look out for my next publication to get a thorough understanding of the system and a more detailed analysis. This was a short and quick sample.</p>
+								</section>
+
+						</div>
+					</div>
+
+				<!-- Sidebar -->
+				<div id="sidebar">
+					<div class="inner">
+
+						
+
+						<!-- Menu -->
+							<nav id="menu">
+								<header class="major">
+									<h2>Menu</h2>
+								</header>
+								<ul>
+									<li><a href="index.html">Homepage</a></li>
+									<li>
+										<span class="opener">Centrosome Project Reports</span>
+										<ul>
+											<li><a href="Centrosome.html">Centrosome Maturation</a></li>
+											<li><a href="Centrosome_data_analysis.html">Parameter Analysis</a></li>
+											<li><a href="Network.html">Network Model</a></li>
+										</ul>
+									</li>
+									<li><a href="NLP.html">Fake News Detection</a></li>
+									<li><a href="VirtualCV.html">Experience</a></li>
+								</ul>
+							</nav>
+
+						<!-- Section 
+							<section>
+								<header class="major">
+									<h2>Ante interdum</h2>
+								</header>
+								<div class="mini-posts">
+									<article>
+										<a href="#" class="image"><img src="images/pic07.jpg" alt="" /></a>
+										<p>Aenean ornare velit lacus, ac varius enim lorem ullamcorper dolore aliquam.</p>
+									</article>
+									<article>
+										<a href="#" class="image"><img src="images/pic08.jpg" alt="" /></a>
+										<p>Aenean ornare velit lacus, ac varius enim lorem ullamcorper dolore aliquam.</p>
+									</article>
+									<article>
+										<a href="#" class="image"><img src="images/pic09.jpg" alt="" /></a>
+										<p>Aenean ornare velit lacus, ac varius enim lorem ullamcorper dolore aliquam.</p>
+									</article>
+								</div>
+								<ul class="actions">
+									<li><a href="#" class="button">More</a></li>
+								</ul>
+							</section>-->
+
+						<!-- Section -->
+							<section>
+								<header class="major">
+									<h2>Get in touch</h2>
+								</header>
+								
+								<ul class="contact">
+									<li class="icon solid fa-envelope"><a href="mailto:shayne.plourde@outlook.com">shayne.plourde@outlook.com</a></li>
+									<li class="icon brands fa-linkedin"><a href="https://www.linkedin.com/in/shayne-plourde/">www.linkedin.com/in/shayne-plourde/</a></li>
+									<li class="icon brands fa-github"><a href="https://github.com/Shayne-Falco">github.com/Shayne-Falco</a></li>
+								</ul>
+							</section>
+
+						<!-- Footer -->
+							<footer id="footer">
+								<p class="copyright">&copy; Untitled. All rights reserved. Demo Images: <a href="https://unsplash.com">Unsplash</a>. Design: <a href="https://html5up.net">HTML5 UP</a>.</p>
+							</footer>
+
+					</div>
+				</div>
+
+			</div>
+
+		<!-- Scripts -->
+			<script src="assets/js/jquery.min.js"></script>
+			<script src="assets/js/browser.min.js"></script>
+			<script src="assets/js/breakpoints.min.js"></script>
+			<script src="assets/js/util.js"></script>
+			<script src="assets/js/main.js"></script>
+
+	</body>
+</html>

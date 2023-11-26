@@ -1,0 +1,218 @@
+<!DOCTYPE HTML>
+<!--
+	Editorial by HTML5 UP
+	html5up.net | @ajlkn
+	Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
+-->
+<html>
+	<head>
+		<title>Centrosomes</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+		<link rel="stylesheet" href="assets/css/main.css" />
+	</head>
+	<body class="is-preload">
+
+		<!-- Wrapper -->
+			<div id="wrapper">
+
+				<!-- Main -->
+					<div id="main">
+						<div class="inner">
+
+							<!-- Header -->
+								<header id="header">
+									<a class="logo"><strong>Centrosome Maturation</strong> by Shayne M. Plourde</a>
+									<ul class="icons">
+										<li><a href="https://www.linkedin.com/in/shayne-plourde/" class="icon brands fa-linkedin"><span class="label">LinkedIn</span></a></li>
+										<li><a href="https://github.com/Shayne-Falco" class="icon brands fa-github"><span class="label">Github</span></a></li>
+										<li><a href="mailto:shayne.plourde@outlook.com" class="icon solid fa-envelope"><span class="label">Email</span></a></li>
+									</ul>
+								</header>
+
+							<!-- Content -->
+								<section>
+									<header class="main">
+										<h1>Centrosome Maturatrion</h1>
+									</header>
+
+									<span class="image main"><img src="images/LinkedIn.jpg" alt="" /></span>
+
+									<hr class="major" />
+									<h2><i>C. elegans</i> as a model for cellular processes.</h2>
+									<p>A rapid lifecycle (3 days), small size (1.5mm long adults), complete transparency, and ease of genetic manipulation make this self fertilizing round worm an amazing candidate for biological experiments. Many of the proteins and pathways important to human health are found, or have homologues, in <i>C. elegans</i>. Further, many mathematical models have been developed for the signaling pathways or maturation steps of its cellular components. Many assumptions have persisted in the modeling and biological literature that we set out to thoroughly test for the first time, namely if the two centrosomes critical for the first division of the embryo were in fact identical or not.</p>
+									<h3>Centrosomes and Cellular Divisions</h3>
+									<p>Centrosome positioning specifies the location where a cell will divide into two daughter cells. The placement of this division plane is critically important for proliferative divisions as well as divisions used to specify different daughter cell types, like in stem cells. Improper centrosome positioning is implicated in many diseases and is often observed during cancer metastasis. The cellular mechanisms and dynamics required for proper centrosome maturation are not well understood in any organism. Any insight into the factors that control the maturation, and therefore the positioning of the centrosome, could help us better understand what goes wrong with positioning in many disease states. </p>
+									
+									<hr class="major" />
+
+									<h2>Biological Data Collection</h2>
+									<div class="row">
+										<div class="col-7 col-12-small">
+											<h3>Centrosome Maturation</h3>
+											<p>Before the centrosomes are positioned they must first mature and nucleate microtubules (MTs). These MTs are what bring the two pronuclei together and then interact with force generating machinery to center and rotate them to align the division plane. The two centrosomes are traditionally thought to be identical, but we sought to thoroughly test the validity of this assumption.</p>
+											
+											<h3>Precise Quantification of FLuorescence Microscopy</h3>
+											<p>I first performed 4D fluorescence microscopy of embryos dissected from a strain expressing a GFP tagged centrosome protein that is required for MT nucleation activity. This protein, AIR-1, was chosen because it is well studies and it's location in the maturation pathway meant that if there were any asymmetries in the centrosome the would likely appear here. From this we were able to quantify the recruitment of centrosome factors on a relatively long timescale. We also were able to photobleach one of the centrosomes and track the recovery of the fluorescence signal to acquire the dynamics on a much shorter timescale.</p>
+											<p>What we found was that the the centrosome that was fated to be in the anterior of the embryo during mitosis had a higher fluorescence intensity during the time when both centrosomes were maturing. We also found that the two centrosomes had an equivalent recovery.</p>
+										</div>
+										<div class="col-5 col-12-small">
+											<span class="image main"><img src="images/quantification.png" alt="" /></span>
+										</div>
+									</div>
+									
+									<hr class="major" />
+
+									<h2>Building a Novel Mathematical Model</h2>
+									<div class="row">
+										<div class="col-6 col-12-small">
+											<pre><code>function [dydt] = ODE_DL_FRAP_Dynamic(~,Parameters,Concentrations)
+a1 = Parameters(1) 
+...
+C1b = Concentrations(1) 
+...
+ dydt(1) = C_0^n1*(1-(C1b*B+C1f*F)/a4)*Cyb*(C1b*B+C1f*F)^n1-a1*C1b;
+ dydt(2) = C_0^n1*(1-(C1b*B+C1f*F)/a4)*Cyf*(C1b*B+C1f*F)^n1-a1*C1f;
+ dydt(3) = a3*C_0^n2*(1-(C2b*B+C2f*F)/a5)*Cyb*(C2b*B+C2f*F)^n2-a2*C2b;
+ dydt(4) = a3*C_0^n2*(1-(C2b*B+C2f*F)/a5)*Cyf*(C2b*B+C2f*F)^n2-a2*C2f;
+ dydt(5) = -a7*Cyb-dydt(1)-dydt(3);
+ dydt(6) = a6/(C_0*F)-a7*Cyf-dydt(2)-dydt(4);
+end
+
+											</code></pre>
+
+										</div>
+										<div class="col-6 col-12-small">
+											<p>Other mathematical models of centrosome maturation rely on imposing specific dynamics and often assumptions that the two centrosomes are identical in size or concentration. Our model was built with no imposed dynamics or asymmetries. Instead we incorporated dynamics that could potentially be required for recruitment and let our random parameter search determine which were important to recapitulate the previously quantified recruitment and recovery dynamics.</p>
+										</div>
+									</div>
+									<div class="row">
+										<div class="col-3 col-12-small">
+											<h3>Random Parameter Search</h3>
+											<p>To find many parameter sets that fit our model to our <i>in vivo</i> data, we implemented a random search with the given scheme. With these parameter sets we will be able to identify the mechanisms that persist in all of these sets. </p>
+										</div>
+										<div class="col-9 col-12-small">
+											<pre><code>%Code snippet showing the random parameter search. 
+%Not all parameters are initialized here and not all functions are shown 
+array=[a_1 a_2 a_3 a_4 a_5 a_6 a_7 n1 n2]; % random array of parameters is established
+y0=[C1b,C1f,C2b,C2f,Cyb,Cyf]; % set to match the data
+[~,y1] = ode15s(@(t,y0Lead)ODE_DL_FRAP_Dynamic(t,array,y0Lead),[time-deltaT,time],y0);
+Distance = SumAbsDiff(y1,inVivoData); %Compute the sum of absolute difference between simulated curves and <i>in vivo</i> curves;
+iterationNum = 0;
+save2file(array,Distance,iterationNum) %Saves all parameter arrays along the way to the one that fits to the data
+While Distance < Cuttoff
+    iterationNum += 1;
+    NewArray = mmh(array); %Randomly perturbs all of the elements in the input array
+    [~,y1] = ode15s(@(t,y0Lead)ODE_DL_FRAP_Dynamic(t,array,y0Lead),[time-deltaT,time],y0);
+    DistanceNew = SumAbsDiff(y1,inVivoData);
+    if DistanceNew < Distance
+        Distance = DistanceNew;
+        array = NewArray
+        save2file(array,Distance,iterationNum) 
+    end
+end</code></pre>									
+										</div>
+									</div>
+
+									<hr class="major" />
+									<h2>Analysis of Parameter Sets</h2>
+									<div class="row">
+										<div class="col-4 col-12-small">
+											<span class="image main"><img src="images/ParameterSets.jpg" alt="" /></span>
+										</div>
+										<div class="col-8 col-12-small">
+											<p>We were able to find 100 parameter sets that produce simulated curves that were within a small error of our biological data. An analysis of these parameter sets showed that there is a very high level of regulation of the dynamics in the cytoplasm. Further, in the centrosomes we see that the cooperativity, self-recruitment, was significantly different. Namely, 60% of the cooperativity terms in the leading compartment were higher than the corresponding cooperativity in the lagging.</p>
+											<h2>Final Takeaways</h2>
+											<p>This work has shown that the centrosomes are not identical during maturation, while they are being positioned. Previous results from the lab have shown that the MT arrays nucleated from the centrosomes are also asymmetric. Future work will need to be done to discover the cause of the asymmetry because our results indicate that AIR-1 itself is not the cause of the asymmetry, but that it has an asymmetry caused by another factor.</p>
+										</div>
+									</div>
+									<ul class="actions">
+										<li><a href="Centrosome_data_analysis.html" class="button">Exploratory Data Analysis of Parameters</a></li>
+									</ul>
+								</section>
+
+						</div>
+					</div>
+
+				<!-- Sidebar -->
+				<div id="sidebar">
+					<div class="inner">
+
+						
+
+						<!-- Menu -->
+							<nav id="menu">
+								<header class="major">
+									<h2>Menu</h2>
+								</header>
+								<ul>
+									<li><a href="index.html">Homepage</a></li>
+									<li>
+										<span class="opener">Centrosome Project Reports</span>
+										<ul>
+											<li><a href="Centrosome.html">Centrosome Maturation</a></li>
+											<li><a href="Centrosome_data_analysis.html">Parameter Analysis</a></li>
+											<li><a href="Network.html">Network Model</a></li>
+										</ul>
+									</li>
+									<li><a href="NLP.html">Fake News Detection</a></li>
+									<li><a href="VirtualCV.html">Experience</a></li>
+								</ul>
+							</nav>
+
+						<!-- Section 
+							<section>
+								<header class="major">
+									<h2>Ante interdum</h2>
+								</header>
+								<div class="mini-posts">
+									<article>
+										<a href="#" class="image"><img src="images/pic07.jpg" alt="" /></a>
+										<p>Aenean ornare velit lacus, ac varius enim lorem ullamcorper dolore aliquam.</p>
+									</article>
+									<article>
+										<a href="#" class="image"><img src="images/pic08.jpg" alt="" /></a>
+										<p>Aenean ornare velit lacus, ac varius enim lorem ullamcorper dolore aliquam.</p>
+									</article>
+									<article>
+										<a href="#" class="image"><img src="images/pic09.jpg" alt="" /></a>
+										<p>Aenean ornare velit lacus, ac varius enim lorem ullamcorper dolore aliquam.</p>
+									</article>
+								</div>
+								<ul class="actions">
+									<li><a href="#" class="button">More</a></li>
+								</ul>
+							</section>-->
+
+						<!-- Section -->
+							<section>
+								<header class="major">
+									<h2>Get in touch</h2>
+								</header>
+								
+								<ul class="contact">
+									<li class="icon solid fa-envelope"><a href="mailto:shayne.plourde@outlook.com">shayne.plourde@outlook.com</a></li>
+									<li class="icon brands fa-linkedin"><a href="https://www.linkedin.com/in/shayne-plourde/">www.linkedin.com/in/shayne-plourde/</a></li>
+									<li class="icon brands fa-github"><a href="https://github.com/Shayne-Falco">github.com/Shayne-Falco</a></li>
+								</ul>
+							</section>
+
+						<!-- Footer -->
+							<footer id="footer">
+								<p class="copyright">&copy; Untitled. All rights reserved. Demo Images: <a href="https://unsplash.com">Unsplash</a>. Design: <a href="https://html5up.net">HTML5 UP</a>.</p>
+							</footer>
+
+					</div>
+				</div>
+
+			</div>
+
+		<!-- Scripts -->
+			<script src="assets/js/jquery.min.js"></script>
+			<script src="assets/js/browser.min.js"></script>
+			<script src="assets/js/breakpoints.min.js"></script>
+			<script src="assets/js/util.js"></script>
+			<script src="assets/js/main.js"></script>
+
+	</body>
+</html>
